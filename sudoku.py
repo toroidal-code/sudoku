@@ -1,11 +1,3 @@
-"""
-File: skyscraper.py (Student version)
-Author: Sean Strout <sps@cs.rit.edu>
-Author: <<< YOUR NAME HERE >>>
-Purpose:  A backtracking solver for the Skyscraper puzzle.
-Language: Python 3
-"""
-
 from copy import deepcopy
 from sys import argv
 import collections
