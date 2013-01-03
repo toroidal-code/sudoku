@@ -4,14 +4,16 @@ This is a simple sudoku solver implemented using a backtracking algorithm. It is
 
 ##For comparison
 Python takes 25 seconds on a MacBook 2GHz Core 2 Duo 64bit, while sbcl has a result of:
-`Evaluation took:
+```Shell
+Evaluation took:
   1.388 seconds of real time
   1.348433 seconds of total run time (1.258145 user, 0.090288 system)
   [ Run times consist of 0.228 seconds GC time, and 1.121 seconds non-GC time. ]
   97.12% CPU
   2,717,469,105 processor cycles
   35 page faults
-  629,127,424 bytes consed`
+  629,127,424 bytes consed
+  ````
   
 ##To run:
 Either do `python3 sudoku.py` and then enter `su9.txt` and `False`
