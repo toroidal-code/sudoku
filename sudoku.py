@@ -1,3 +1,4 @@
+#! /usr/bin/python3
 from copy import deepcopy
 from sys import argv
 import collections
@@ -12,7 +13,7 @@ class SudokuConfig:
     """
     __slots__ = ('DIM', 'board')
     
-    """The empty cell value"""
+    # The empty cell value
     EMPTY = 0   # can be referenced anywhere as: SudokuConfig.EMPTY
     
     def __init__(self,initial):
@@ -45,7 +46,8 @@ class SudokuConfig:
                     result += '.'
                 else:
                     result += str(str(self.board[row][col]))
-                if col != self.DIM-1: result += ' '
+                if col != self.DIM-1:
+                    result += ' '
             result += ' |' + '\n'
             
         # bottom row
@@ -55,7 +57,7 @@ class SudokuConfig:
                   
         return result
     
-    def values(self,direction,index):
+    def values(self, direction, index):
         if direction == "r":
             temp = []
             for item in self.board[index]:
@@ -106,6 +108,91 @@ class SudokuConfig:
                         temp.append(self.board[r][c])         
             return temp
 
+    def isValid(self):
+        """
+        Checks the config to see if it is valid
+            config: The config (SkyscraperConfig)
+        Returns: True if the config is valid, False otherwise
+        """
+
+        # YOUR IMPLEMENTATION REPLACES THIS
+        #First check if rows and columns contain a value only once
+        for index in range(self.DIM):
+            if self.isValidRep(index,'r') is False or self.isValidRep(index,'c') is False or self.isValidRep(index,'s') is False:
+                return False
+        return True
+
+    def isValidRep(self,index,direction):
+        #print("Testing index :" + index)
+        if direction is 'r':
+            l = self.values('r',index)
+        elif direction is 'c':
+            l = self.values('c',index)
+        elif direction is 's':
+            l = self.values('s',index)
+        else:
+            quit()
+        for value in range(1,self.DIM+1):
+            if l.count(value) > 1:
+                #print("Fails at row " + str(row))
+                return False
+        return True
+
+    def isGoal(self):
+        """
+        Checks whether a config is a goal or not
+            config: The config (SkyscraperConfig)
+        Returns: True if config is a goal, False otherwise
+        """
+
+        # YOUR IMPLEMENTATION REPLACES THIS
+        #for look in range(config.DIM):
+        for index in range(self.DIM):
+            if not self.values('r',index).count(0) is 0:
+                return False
+        if not self.isValid():
+            return False
+        return True
+
+    def getSuccessors(self):
+        suc = []
+        for row in range(self.DIM):
+            usedRowVals = self.values('r',row)
+            for col in range(self.DIM):
+                usedColVals = self.values('c',col)
+                usedSubVals = self.values('s',getQuadrant(row,col))
+                if self.board[row][col] == 0:
+                    for i in range(1,self.DIM+1):
+                        if usedRowVals.count(i) is 0 and usedColVals.count(i) is 0 and usedSubVals.count(i) is 0: #if we already used that value, don't reuse it
+                            if i == self.board[row][col]:
+                                pass
+                            newConfig = deepcopy(self)
+                            newConfig.board[row][col] = i
+                            suc.append(newConfig)
+                    return suc
+
+        return []
+
+    def solve(self, debug):
+        """
+        Generic backtracking solver.
+            config: the current config (SkyscraperConfig)
+            debug: print debug output? (Bool)
+        Returns:  A config (SkyscraperConfig), if valid, None otherwise
+        """
+
+        if self.isGoal():
+            return self
+        else:
+            if debug: print('Current:\n' + str(self))
+            for successor in self.getSuccessors():
+                if self.isValid():
+                    if debug: print('Valid Successor:\n' + str(successor))
+                    solution = successor.solve(debug)
+                    if solution is not None:
+                        return solution
+
+
 def readBoard(filename):
     """
     Read the board file.  It is organized as follows:
@@ -125,54 +212,11 @@ def readBoard(filename):
         board.append(line)
     f.close()
     return SudokuConfig(board)
-    
+
+
 def remove_values_from_list(the_list, val):
-   return [value for value in the_list if value != val]
+    return [value for value in the_list if value != val]
 
-def isGoal(config):
-    """
-    Checks whether a config is a goal or not
-        config: The config (SkyscraperConfig)
-    Returns: True if config is a goal, False otherwise
-    """
-    
-    # YOUR IMPLEMENTATION REPLACES THIS
-    #for look in range(config.DIM):
-    for index in range(config.DIM):
-        if not config.values('r',index).count(0) is 0:
-            return False
-        if not isValid(config):
-            return False
-    return True
-
-
-def isValid(config):
-    """
-    Checks the config to see if it is valid
-        config: The config (SkyscraperConfig)
-    Returns: True if the config is valid, False otherwise
-    """
-    
-    # YOUR IMPLEMENTATION REPLACES THIS
-    #First check if rows and columns contain a value only once
-    for index in range(config.DIM):
-        if isValidRep(config,index,'r') is False or isValidRep(config,index,'c') is False or isValidRep(config,index,'s') is False:
-            return False
-    return True
-
-def isValidRep(config,index,direction):
-    #print("Testing index :" + index)
-    if direction is 'r':
-        l = config.values('r',index)
-    elif direction is 'c':
-        l = config.values('c',index)
-    elif direction is 's':
-        l = config.values('s',index)   
-    for value in range(1,config.DIM+1):
-        if l.count(value) > 1:
-            #print("Fails at row " + str(row))
-            return False
-    return True
 
 def getQuadrant(row,col):
     if row < 3:
@@ -197,43 +241,6 @@ def getQuadrant(row,col):
         if col >= 6:
             return 9
 
-def getSuccessors(config):
-    suc = []
-    for row in range(config.DIM):
-        usedRowVals = remove_values_from_list(config.values('r',row),0)
-        for col in range(config.DIM):
-            usedColVals = remove_values_from_list(config.values('c',col),0)
-            usedSubVals = remove_values_from_list(config.values('s',getQuadrant(row,col)),0)
-            if config.board[row][col] == 0:
-                for i in range(1,config.DIM+1):
-                    if usedRowVals.count(i) is 0 and usedColVals.count(i) is 0 and usedSubVals.count(i) is 0: #if we already used that value, don't reuse it
-                        if i == config.board[row][col]: pass
-                        newConfig = deepcopy(config)
-                        newConfig.board[row][col] = i
-                        suc.append(newConfig)
-                return suc
- 
-    return []
-
-def solve(config, debug):
-    """
-    Generic backtracking solver.
-        config: the current config (SkyscraperConfig)
-        debug: print debug output? (Bool)
-    Returns:  A config (SkyscraperConfig), if valid, None otherwise
-    """
-    
-    if isGoal(config):
-        return config
-    else:
-        if debug: print('Current:\n' + str(config))
-        for successor in getSuccessors(config):
-            if isValid(successor):
-                if debug: print('Valid Successor:\n' + str(successor))
-                solution = solve(successor, debug)
-                if solution != None:
-                    return solution
-    
 
 def main():
     """
@@ -261,7 +268,7 @@ def main():
         return -1
         
     # read and display the initial board
-    if (os.name == 'nt'):
+    if os.name == 'nt':
         time.clock()
     else:
         startTime = time.clock()
@@ -270,16 +277,15 @@ def main():
     print('Initial Config:\n' + str(initConfig))
     
     # solve the puzzle
-    solution = solve(initConfig,debug)
+    solution = initConfig.solve(debug)
     
-    if (os.name == 'nt'):
-        print("Time elapsed:",time.clock(),"seconds")
+    if os.name == 'nt':
+        print("Time elapsed:", time.clock(), "seconds")
     else:
-        print("Time elapsed:",time.clock() - startTime,"seconds")
-    pass
+        print("Time elapsed:", time.clock() - startTime,"seconds")
     
     # display the solution, if one exists
-    if solution != None:
+    if solution is not None:
         print('Solution:\n' + str(solution))
     else:
         print('No solution.')
