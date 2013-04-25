@@ -8,80 +8,63 @@ typedef int** sudokuBoard;
 
 /*[SudokuConfig]*/
 
-void SudokuConfig::values(int direction, int index, int array[]){
+void SudokuConfig::values(int direction, int index, int (&array)[DIM]){
     if (direction == 0){
         for (int i = 0; i < DIM; i++){
-            *(array + i) = this->board[index][i];
+            array[i] = this->board[index][i];
         }
     } else if (direction == 1){
         for (int i = 0; i < DIM; i++){
-            *(array + i) = this->board[i][index];
+            array[i] = this->board[i][index];
         }
     } else if (direction == 2){
         int arri = 0;
-        if (index == 1){
-            for (int r = 0; r < 3; r++){
-                for (int c = 0; c < 3; c++){
-                    *(array + arri) = this->board[r][c];
-                    arri++;
-                }
-            }
-        } else if (index == 2){
-            for (int r = 0; r < 3; r++){
-                for (int c = 3; c < 6; c++){
-                    *(array + arri) = this->board[r][c];
-                    arri++; 
-                }
-            }
-        } else if (index == 3){
-            for (int r = 0; r < 3; r++){
-                for (int c = 6; c < 9; c++){
-                    *(array + arri) = this->board[r][c];
-                    arri++;
-                }
-            }
-        } else if (index == 4){
-            for (int r = 3; r < 6; r++){
-                for (int c = 0; c < 3; c++){
-                    *(array + arri) = this->board[r][c];
-                    arri++;
-                }
-            }
-        } else if (index == 5){
-            for (int r = 3; r < 6; r++){
-                for (int c = 3; c < 6; c++){
-                    *(array + arri) = this->board[r][c];
-                    arri++;
-                }
-            }
-        } else if (index == 6){
-            for (int r = 3; r < 6; r++){
-                for (int c = 6; c < 9; c++){
-                    *(array + arri) = this->board[r][c];
-                    arri++;
-                }
-            }
-        } else if (index == 7){
-            for (int r = 6; r < 9; r++){
-                for (int c = 0; c < 3; c++){
-                    *(array + arri) = this->board[r][c];
-                    arri++;
-                }
-            }
-        } else if (index == 8){
-            for (int r = 6; r < 9; r++){
-                for (int c = 3; c < 6; c++){
-                    *(array + arri) = this->board[r][c];
-                    arri++;
-                }
-            }
-        } else if (index == 9){
-            for (int r = 6; r < 9; r++){
-                for (int c = 6; c < 9; c++){
-                    *(array + arri) = this->board[r][c];
-                    arri++;
-                }
-            }
+        switch(index){
+            case 1: 
+                for (int r = 0; r < 3; r++)
+                    for (int c = 0; c < 3; c++)
+                        array[arri++] = this->board[r][c];
+                break;
+            case 2:
+                for (int r = 0; r < 3; r++)
+                    for (int c = 3; c < 6; c++)
+                        array[arri++] = this->board[r][c];
+                break;
+            case 3:
+                for (int r = 0; r < 3; r++)
+                    for (int c = 6; c < 9; c++)
+                        array[arri++] = this->board[r][c];
+                break;
+            case 4:
+                for (int r = 3; r < 6; r++)
+                    for (int c = 0; c < 3; c++)
+                        array[arri++] = this->board[r][c];
+                break;
+            case 5: 
+                for (int r = 3; r < 6; r++)
+                    for (int c = 3; c < 6; c++)
+                        array[arri++] = this->board[r][c];
+                break;
+            case 6:
+                for (int r = 3; r < 6; r++)
+                    for (int c = 6; c < 9; c++)
+                        array[arri++] = this->board[r][c];
+                break;
+            case 7:
+                for (int r = 6; r < 9; r++)
+                    for (int c = 0; c < 3; c++)
+                        array[arri++] = this->board[r][c];
+                break;
+            case 8:
+                for (int r = 6; r < 9; r++)
+                    for (int c = 3; c < 6; c++)
+                        array[arri++] = this->board[r][c];
+                break;
+            case 9:
+                for (int r = 6; r < 9; r++)
+                    for (int c = 6; c < 9; c++)
+                        array[arri++] = this->board[r][c];
+                break;
         }
     }
 }
@@ -112,7 +95,7 @@ bool SudokuConfig::isGoal(){
     return true;
 }
 
-void SudokuConfig::getSuccessors(SudokuConfig* suc[], int *num){
+void SudokuConfig::getSuccessors(SudokuConfig* suc[], int &num){
     for (int r = 0; r < DIM; r++){
         int used_row_values[DIM];
         this->values(0, r, used_row_values);
@@ -131,7 +114,7 @@ void SudokuConfig::getSuccessors(SudokuConfig* suc[], int *num){
                             return;
                         SudokuConfig* newConfig = new SudokuConfig(this);
                         newConfig->board[r][c] = i;
-                        *(suc + (*num)++) = newConfig;
+                        *(suc + num++) = newConfig;
                     }
                 }
                 return;
@@ -149,7 +132,7 @@ SudokuConfig* SudokuConfig::solve(bool debug){
             std::cout << *this << std::endl;
         int count = 0;
         SudokuConfig* *successors = (SudokuConfig**)calloc(DIM, sizeof(SudokuConfig*));
-        this->getSuccessors(successors, &count);
+        this->getSuccessors(successors, count);
         for (int i = 0; i < count; i++){
             // if (debug)
             //     std::cout << *(successors + i) << std::endl;
@@ -214,7 +197,7 @@ int getQuadrant(int row, int col){
     return 0;
 }
 
-int count(int* array, int value){ 
+int count(int array[DIM], int value){ 
     int count = 0; 
     for (unsigned long i = 0; i < DIM; i++){ 
         if (array[i] == value) 
@@ -260,24 +243,20 @@ int** createArray(){
 }
 
 
-
 int main(int argc, char** argv){
-    // if (argc != 2) {
-    //     std::cout << "Error: no file specified."<< '\n' <<
-    //     "Usage: sudoku nameofboard.txt" << std::endl;
-    //     exit(-1);
-    // }
+    if (argc != 2) {
+        std::cout << "Error: no file specified."<< '\n' <<
+        "Usage: sudoku nameofboard.txt" << std::endl;
+        exit(-1);
+    }
 
-    SudokuConfig* root = readFile("/home/kate/git/sudoku/su0.txt"); //readFile(argv[1]);
-    // std::cout << "Root:" << '\n' << *root << std::endl;
-    // int num = 0;
-    // SudokuConfig** suc = (SudokuConfig**)calloc(DIM, sizeof(SudokuConfig*));
-    // root->getSuccessors(suc, &num);
-    // for (int i = 0; i < num; i++)
-    //     std::cout << **(suc + i);
+    SudokuConfig* root = readFile(argv[1]);
+    std::cout << "Input:" << '\n' << *root << std::endl;
     SudokuConfig* solution = root->solve(false);
     if (solution != NULL)
-        std::cout << *solution << std::endl;
-    //free(suc);
+        std::cout << "Solution:" << *solution << std::endl;
+    else
+        std::cout << "No solution found" << std::endl;
+    delete solution;
     delete root;
 }

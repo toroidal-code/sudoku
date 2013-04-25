@@ -15,7 +15,6 @@ public:
 
 	SudokuConfig(sudokuBoard _initial)
 	{
-		int** board_as_ptr = (int**)board;
 		for (int r = 0; r < DIM; r++){
 			for (int c = 0; c < DIM; c++){
 				board[r][c] = _initial[r][c];
@@ -33,15 +32,16 @@ public:
 	}
 
 	friend std::ostream& operator<< (std::ostream &out, SudokuConfig &config);
-	void values(int direction, int index, int array[]);
+	void values(int direction, int index, int (&array)[DIM]);
 	bool isValid();
 	bool isGoal();
-	void getSuccessors(SudokuConfig* suc[], int* count);
+	void getSuccessors(SudokuConfig* suc[], int &count);
 	SudokuConfig* solve(bool debug);
 
 };
-int count(int* array, int value);
+int count(int array[DIM], int value);
 int getQuadrant(int row, int col);
+SudokuConfig* readFile(char* file);
 int main(int argc, char** argv);
 
 
