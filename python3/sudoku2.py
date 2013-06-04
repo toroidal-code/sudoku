@@ -8,14 +8,14 @@ DIM = 9
 
 
 class Cell:
-    __slots__=('value', 'possible')
+    __slots__ = ('value', 'possible')
 
     def __init__(self, initial):
         """
         Constructor
         """
         self.value = initial
-        self.possible = [] # [0,0,0,0,0,0,0,0,0]
+        self.possible = []  # [0,0,0,0,0,0,0,0,0]
 
     def __str__(self):
         """
@@ -38,15 +38,15 @@ class Sudoku:
         """
         Return a string representation of the config.
         """
-        
+
         # top row
         result = '  '
-        result = '\n ' + '-' * (DIM*2+5) + '\n'
-            
+        result = '\n ' + '-' * (DIM * 2 + 5) + '\n'
+
         # board rows
         for row in range(DIM):
             if row is 3 or row is 6:
-                result += '|' + '-' * (DIM*2+5) + '|' + '\n'
+                result += '|' + '-' * (DIM * 2 + 5) + '|' + '\n'
                 # result += '|-------+-------+-------|\n'
             result += '| '
             for col in range(DIM):
@@ -56,16 +56,16 @@ class Sudoku:
                     result += '.'
                 else:
                     result += str(self.board[row][col])
-                if col != DIM-1:
+                if col != DIM - 1:
                     result += ' '
             result += ' |' + '\n'
-            
+
         # bottom row
-        result += ' ' + '-' * (DIM*2+5) + '\n'
+        result += ' ' + '-' * (DIM * 2 + 5) + '\n'
         result += '  '
         result += '\n'
         return result
-        
+
     def values(self, direction, index):
         if direction == 0:
             temp = []
@@ -79,52 +79,52 @@ class Sudoku:
             return temp
         elif direction == 2:
             temp = []
-            if index == 1:
+            if index == 0:
                 for r in range(3):
                     for c in range(3):
+                        temp.append(self.board[r][c].value)
+            elif index == 1:
+                for r in range(3):
+                    for c in range(3, 6):
                         temp.append(self.board[r][c].value)
             elif index == 2:
                 for r in range(3):
-                    for c in range(3,6):
+                    for c in range(6, 9):
                         temp.append(self.board[r][c].value)
             elif index == 3:
-                for r in range(3):
-                    for c in range(6,9):
+                for r in range(3, 6):
+                    for c in range(3):
                         temp.append(self.board[r][c].value)
             elif index == 4:
-                for r in range(3,6):
-                    for c in range(3):
+                for r in range(3, 6):
+                    for c in range(3, 6):
                         temp.append(self.board[r][c].value)
             elif index == 5:
-                for r in range(3,6):    
-                    for c in range(3,6):
+                for r in range(3, 6):
+                    for c in range(6, 9):
                         temp.append(self.board[r][c].value)
             elif index == 6:
-                for r in range(3,6):    
-                    for c in range(6,9):
-                        temp.append(self.board[r][c].value)       
-            elif index == 7:
-                for r in range(6,9):
+                for r in range(6, 9):
                     for c in range(3):
                         temp.append(self.board[r][c].value)
-            elif index == 8:
-                for r in range(6,9):    
-                    for c in range(3,6):
+            elif index == 7:
+                for r in range(6, 9):
+                    for c in range(3, 6):
                         temp.append(self.board[r][c].value)
-            elif index == 9:
-                for r in range(6,9):    
-                    for c in range(6,9):
-                        temp.append(self.board[r][c].value)         
+            elif index == 8:
+                for r in range(6, 9):
+                    for c in range(6, 9):
+                        temp.append(self.board[r][c].value)
             return temp
 
     def isValid(self):
         for idx in range(DIM):
             for direc in range(3):
                 vals = self.values(direc, idx)
-                for num in range(1, DIM+1):
+                for num in range(1, DIM + 1):
                     if vals.count(num) > 1:
                         return False
-        return True            
+        return True
 
     def isGoal(self):
         """
@@ -140,7 +140,6 @@ class Sudoku:
         return True
 
     def printPoss(self):
-        temp = []
         for row in self.board:
             print([cell.possible for cell in row])
 
@@ -165,7 +164,6 @@ class Sudoku:
                         self.board[row][col].value = poss[0]
             self.genPoss()
 
-
     def getMinPoss(self):
         l = DIM
         for row in range(DIM):
@@ -179,10 +177,7 @@ class Sudoku:
     def getSuccessors(self):
         suc = []
         for row in range(DIM):
-            usedRowVals = self.values(0,row)
             for col in range(DIM):
-                usedColVals = self.values(1,col)
-                usedSubVals = self.values(2,getQuadrant(row,col))
                 if self.board[row][col].value is 0 and len(self.board[row][col].possible) is self.getMinPoss():
                     for i in self.board[row][col].possible:
                         newConfig = deepcopy(self)
@@ -203,37 +198,40 @@ class Sudoku:
         if self.isGoal():
             return self
         else:
-            if debug: print('Current:\n' + str(self))
+            if debug:
+                print('Current:\n' + str(self))
             for successor in self.getSuccessors():
                 if self.isValid():
-                    if debug: print('Valid Successor:\n' + str(successor))
+                    if debug:
+                        print('Valid Successor:\n' + str(successor))
                     solution = successor.solve(debug)
                     if solution is not None:
                         return solution
 
 
-def getQuadrant(row,col):
+def getQuadrant(row, col):
     if row < 3:
         if col < 3:
-            return 1
+            return 0
         if 3 <= col < 6:
-            return 2
+            return 1
         if col >= 6:
-            return 3
+            return 2
     elif 3 <= row < 6:
         if col < 3:
-            return 4
+            return 3
         if 3 <= col < 6:
-            return 5
+            return 4
         if col >= 6:
-            return 6
+            return 5
     elif row >= 6:
         if col < 3:
-            return 7
+            return 6
         if 3 <= col < 6:
-            return 8
+            return 7
         if col >= 6:
-            return 9
+            return 8
+
 
 def readBoard(filename):
     """
@@ -241,11 +239,11 @@ def readBoard(filename):
         row 1 values    # 0 for empty, (1-DIM) otherwise
         row 2 values    # 0 for empty, (1-DIM) otherwise
         ...
-    
+
         filename: The file name (string)
     Returns: A config (SkyscraperConfig) containing the board info from file
     """
-    
+
     f = open(filename)
     board = []
     for _ in range(DIM):
@@ -262,7 +260,7 @@ def main():
             filename: The name of the board file
             debug: True or False for debug output
     """
-    
+
     # if no command line arguments specified, prompt for the filename
     # and set debug output to False
     if len(argv) == 1:
@@ -275,11 +273,11 @@ def main():
     # incorrect number of command line arguments
     else:
         print("Usage: python3 sudoku.py [filename debug]")
-        print("optional command line arguments:" )
+        print("optional command line arguments:")
         print("  filename: The name of the board file")
         print("  debug: True or False for debug output")
         return -1
-        
+
     # read and display the initial board
     if os.name == 'nt':
         time.clock()
@@ -293,12 +291,12 @@ def main():
 
     # solve the puzzle
     solution = initConfig.solve(debug)
-    
+
     if os.name == 'nt':
         print("Time elapsed:", time.clock(), "seconds")
     else:
-        print("Time elapsed:", time.clock() - startTime,"seconds")
-    
+        print("Time elapsed:", time.clock() - startTime, "seconds")
+
     # display the solution, if one exists
     if solution is not None:
         print('Solution:\n' + str(solution))
@@ -307,4 +305,3 @@ def main():
 
 
 main()
-
