@@ -1,7 +1,6 @@
 #Sudoku
 ##What it is
 This is a simple sudoku solver implemented using a backtracking algorithm. It is not (terribly) fast, but is effiecient.
-I use this as a benchmark of new systems, since I generally know how well python and sbcl perform in relation to one another.
 
 ##New Algorithm
 sudoku2 is a new solving method, that is a hybrid generation/backtracking algorithm. Python can now solve `su9.txt` in ~0.8 seconds.
